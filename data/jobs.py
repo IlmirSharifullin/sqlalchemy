@@ -20,3 +20,6 @@ class Jobs(SqlAlchemyBase):
                                  default=datetime.datetime.now)
 
     user = orm.relation('User')
+
+    def __repr__(self):
+        return f'<Job> {self.job}'
