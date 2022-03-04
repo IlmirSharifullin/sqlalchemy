@@ -1,16 +1,28 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Записи в блоге</h1>
-{% for item in news%}
-<div class="col-md6 border rounded">
-    <h2>{{item.title}}</h2>
-    <div>
-        {{item.content}}
-    </div>
-    <div>
-        Автор - {{item.user.name}}, Дата написания - {{item.created_date}}
-    </div>
-</div>
+<h3 align="center">Works log</h3>
+{% for item in jobs%}
+<h4>Action # {{item.id}}</h4>
+<table border="15">
+    <tr bgcolor="888888">
+        <th width="400">Time of activity</th>
+        <th>Team leader</th>
+        <th>Duration</th>
+        <th>List of collaborators</th>
+        <th>is finished</th>
+    </tr>
+    <tr>
+        <td width="400" bgcolor="eeeefe">{{item.job}}</td>
+        <td bgcolor="eeeefe">{{item.team_leader}}</td>
+        <td bgcolor="eeeefe">{{item.work_size}} hours</td>
+        <td bgcolor="eeeefe">{{item.collaborators}}</td>
+        {% if item.is_finished == 0 %}
+        <td bgcolor="feeefe">Is not finished</td>
+        {% else %}
+        <td bgcolor="eeeefe">Is finished</td>
+        {% endif %}
+    </tr>
+</table>
 {% endfor %}
 {% endblock %}

@@ -11,26 +11,17 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
 
 
-def main():
-    db_session.global_init("db/mars_explorer.db")
-
+@app.route('/')
+def jobs():
     db_sess = db_session.create_session()
     jobs = db_sess.query(Jobs).all()
-    jobs_with_max_collabs = []
-    M = 0
-    for job in jobs:
-        c = len(job.collaborators.split(', '))
-        if M < c:
-            jobs_with_max_collabs = [job]
-            M = c
-        elif M == c:
-            jobs_with_max_collabs.append(job)
-    for job in jobs_with_max_collabs:
-        user = db_sess.query(User).filter(User.id == job.team_leader).first()
-        print(user.surname, user.name)
+    return render_template('index.html', jobs=jobs)
+
+
+def main():
+    db_session.global_init("db/mars_explorer.db")
+    app.run()
 
 
 if __name__ == '__main__':
     main()
-
-
