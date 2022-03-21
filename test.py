@@ -1,2 +1,2 @@
-a = [1, 2, 3] + [5]
+a = int(input(), int(input()))
 print(a)

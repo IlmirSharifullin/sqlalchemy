@@ -6,9 +6,10 @@ from flask import Flask, render_template, request, make_response
 from data.departments import Department
 from data.users import User
 from data.jobs import Jobs
+from forms.addjob import AddJobForm
 from forms.login import LoginForm
 from forms.user import RegisterForm
-from flask_login import LoginManager, login_required, logout_user, login_user
+from flask_login import LoginManager, login_required, logout_user, login_user, current_user
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
@@ -27,6 +28,33 @@ def load_user(user_id):
 def logout():
     logout_user()
     return redirect("/")
+
+
+@app.route('/addjob', methods=['GET', 'POST'])
+@login_required
+def add_job():
+    form = AddJobForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        cols = form.collaborators.data
+        try:
+            [int(i) for i in cols.split(', ')]
+        except Exception as e:
+            print(e)
+            return render_template('addjob.html', message='Wrong collaborators', form=form, user=current_user)
+        if not form.work_size.data.isdigit():
+            return render_template('addjob.html', message='Объем работы выражается в количестве часов', form=form, user=current_user)
+        job = Jobs()
+        job.team_leader = current_user.id
+        job.job = form.job.data
+        job.work_size = int(form.work_size.data)
+        job.collaborators = cols
+        job.is_finished = form.is_finished.data
+        db_sess.add(job)
+        db_sess.commit()
+        return redirect('/')
+
+    return render_template('addjob.html', form=form, user=current_user)
 
 
 @app.route('/login', methods=['GET', 'POST'])
