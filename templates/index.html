@@ -5,7 +5,8 @@
 {% if current_user.is_authenticated %}
 <p>
     <br>
-    <a class="btn btn-primary " href="/add_job">Добавить работу</a>
+    <a class="btn btn-secondary " href="/add_job">Добавить работу</a>
+    <a class="btn btn-secondary " href="/departments">Департаменты</a>
 </p>
 {% endif %}
 {% for item in jobs%}
@@ -22,7 +23,7 @@
 {% endif %}
 <table border="15">
     <tr bgcolor="888888">
-        <th width="400">Time of activity</th>
+        <th width="400">Title of activity</th>
         <th>Team leader</th>
         <th>Duration</th>
         <th>List of collaborators</th>

@@ -8,6 +8,7 @@ from flask import Flask, render_template, request, make_response
 from data.departments import Department
 from data.users import User
 from data.jobs import Jobs
+from forms.add_department import AddDepartmentForm
 from forms.addjob import AddJobForm
 from forms.login import LoginForm
 from forms.user import RegisterForm
@@ -43,7 +44,8 @@ def add_job():
             [int(i) for i in cols.split(', ')]
         except Exception as e:
             print(e)
-            return render_template('add_job.html', message='Wrong collaborators', form=form, user=current_user, title='Добавление работы')
+            return render_template('add_job.html', message='Wrong collaborators', form=form, user=current_user,
+                                   title='Добавление работы')
         if not form.work_size.data.isdigit():
             return render_template('add_job.html', message='Объем работы выражается в количестве часов', form=form,
                                    user=current_user, title='Добавление работы')
@@ -56,7 +58,7 @@ def add_job():
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
-
+    
     return render_template('add_job.html', form=form, user=current_user, title='Добавление работы')
 
 
@@ -149,12 +151,39 @@ def reqister():
         user.position = form.position.data
         user.speciality = form.speciality.data
         user.address = form.address.data
-
+        
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
         return redirect('/login')
     return render_template('register.html', title='Регистрация', form=form)
+
+
+@app.route('/departments')
+def departments():
+    db_sess = db_session.create_session()
+    deps = db_sess.query(Department).all()
+    return render_template('departments.html', deps=deps)
+
+
+@app.route('/delete_department/<int:id>')
+@login_required
+def delete_dep(id):
+    db_sess = db_session.create_session()
+    dep = db_sess.query(Department).get(id)
+    if current_user.id == dep.chief or current_user.id == 1:
+        db_sess.delete(dep)
+        db_sess.commit()
+    else:
+        abort(404)
+    return redirect('/')
+
+
+@app.route('/add_department')
+@login_required
+def add_department():
+    form = AddDepartmentForm()
+    return render_template('notfound.html')
 
 
 def main():
