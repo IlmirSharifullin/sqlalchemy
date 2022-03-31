@@ -202,7 +202,7 @@ def add_department():
     return render_template('add_department.html', form=form, title='Добавление департамента')
 
 
-@app.route('/departments/<int:id>')
+@app.route('/departments/<int:id>', methods=['GET', 'POST'])
 @login_required
 def edit_department(id):
     form = AddDepartmentForm()
@@ -217,9 +217,25 @@ def edit_department(id):
         else:
             abort(404)
             return render_template('notfound.html')
-    # if form.validate_on_submit():
-    # ...
-    return render_template('notfound.html')
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).get(id)
+        if dep and (dep.chief == current_user.id or current_user.id == 1):
+            mems = form.members.data
+            try:
+                [int(i) for i in mems.split(', ')]
+            except Exception as e:
+                return render_template('add_department.html', message='Неправильно написаны ID сотрудников', form=form,
+                                   title='Изменение департамента')
+            dep.title = form.title.data
+            dep.members = form.members.data
+            dep.email = form.email.data
+            db_sess.commit()
+            return redirect('/departments')
+        else:
+            abort(404)
+            return render_template('notfound.html')
+    return render_template('add_department.html', title='Изменение департамента', form=form)
 
 
 def main():
