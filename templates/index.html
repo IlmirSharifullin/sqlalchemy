@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h3 align="center">Works log</h3>
+<h3 align="center">Список дел</h3>
 {% if current_user.is_authenticated %}
 <p>
     <br>
@@ -23,11 +23,11 @@
 {% endif %}
 <table border="15">
     <tr bgcolor="888888">
-        <th width="400">Title of activity</th>
-        <th>Team leader</th>
-        <th>Duration</th>
-        <th>List of collaborators</th>
-        <th>is finished</th>
+        <th width="400">Название</th>
+        <th>Тим-лидер</th>
+        <th>Продолжительность</th>
+        <th>ID участников</th>
+        <th>Законченность</th>
     </tr>
     <tr>
         <td width="400" bgcolor="eeeefe">{{item.job}}</td>

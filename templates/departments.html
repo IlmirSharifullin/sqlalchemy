@@ -12,7 +12,7 @@
 <h4>Департамент #{{item.id}}</h4>
 {% if current_user.is_authenticated and (current_user.id == item.chief or current_user.id == 1) %}
 <div>
-    <a href="/department/{{ item.id }}" class="btn btn-warning">
+    <a href="/departments/{{ item.id }}" class="btn btn-warning">
         Изменить
     </a>
     <a href="/delete_department/{{ item.id }}" class="btn btn-danger">
@@ -23,15 +23,16 @@
 <table>
     <tr bgcolor="888888">
         <th width="400">Название</th>
-        <th>Шеф</th>
-        <th>Участники</th>
-        <th>Почта департамента</th>
+        <th width="150">Шеф</th>
+        <th width="150">ID сотрудников</th>
+        <th width="180">Почта департамента</th>
     </tr>
     <tr>
         <td width="400" bgcolor="eeeefe">{{item.title}}</td>
-        <td bgcolor="eeeefe">{{item.chief}}</td>
+        {% set user = db_sess.query(User).get(item.chief) %}
+        <td width="150" bgcolor="eeeefe">{{user.surname}} {{user.name}}</td>
         <td bgcolor="eeeefe">{{item.members}}</td>
-        <td bgcolor="eeeefe">{{item.email}}</td>
+        <td width="100" bgcolor="eeeefe">{{item.email}}</td>
     </tr>
 </table>
 {% endfor %}

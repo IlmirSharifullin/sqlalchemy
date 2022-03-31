@@ -5,7 +5,6 @@ from wtforms.validators import DataRequired
 
 class AddDepartmentForm(FlaskForm):
     title = StringField('Название', validators=[DataRequired()])
-    chief = StringField('Начальник', validators=[DataRequired()])
-    members = StringField('Сотрудники (через ", ")', validators=[DataRequired()])
+    members = StringField('ID сотрудников (через ", ")', validators=[DataRequired()])
     email = EmailField('Почта', validators=[DataRequired()])
     submit = SubmitField('Добавить')

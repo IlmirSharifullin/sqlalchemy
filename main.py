@@ -58,7 +58,7 @@ def add_job():
         db_sess.add(job)
         db_sess.commit()
         return redirect('/')
-    
+
     return render_template('add_job.html', form=form, user=current_user, title='Добавление работы')
 
 
@@ -81,7 +81,7 @@ def edit_job(id):
     form = AddJobForm()
     if request.method == "GET":
         db_sess = db_session.create_session()
-        job = db_sess.query(Jobs).filter(Jobs.id == id).first()
+        job = db_sess.query(Jobs).get(id)
         if job and (job.team_leader == current_user.id or current_user.id == 1):
             form.job.data = job.job
             form.work_size.data = job.work_size
@@ -151,7 +151,7 @@ def reqister():
         user.position = form.position.data
         user.speciality = form.speciality.data
         user.address = form.address.data
-        
+
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
@@ -163,7 +163,7 @@ def reqister():
 def departments():
     db_sess = db_session.create_session()
     deps = db_sess.query(Department).all()
-    return render_template('departments.html', deps=deps)
+    return render_template('departments.html', deps=deps, db_sess=db_sess, User=User)
 
 
 @app.route('/delete_department/<int:id>')
@@ -179,10 +179,46 @@ def delete_dep(id):
     return redirect('/')
 
 
-@app.route('/add_department')
+@app.route('/add_department', methods=['GET', 'POST'])
 @login_required
 def add_department():
     form = AddDepartmentForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        mems = form.members.data
+        try:
+            [int(i) for i in mems.split(', ')]
+        except Exception as e:
+            return render_template('add_department.html', message='Неправильно написаны ID сотрудников', form=form,
+                                   title='Добавление департамента')
+        dep = Department()
+        dep.chief = current_user.id
+        dep.title = form.title.data
+        dep.members = form.members.data
+        dep.email = form.email.data
+        db_sess.add(dep)
+        db_sess.commit()
+        return redirect('/departments')
+    return render_template('add_department.html', form=form, title='Добавление департамента')
+
+
+@app.route('/departments/<int:id>')
+@login_required
+def edit_department(id):
+    form = AddDepartmentForm()
+    if request.method == 'GET':
+        db_sess = db_session.create_session()
+        dep = db_sess.query(Department).get(id)
+        if dep:
+            if dep.chief == current_user.id or current_user.id == 1:
+                form.title.data = dep.title
+                form.members.data = dep.members
+                form.email.data = dep.email
+        else:
+            abort(404)
+            return render_template('notfound.html')
+    # if form.validate_on_submit():
+    # ...
     return render_template('notfound.html')
 
 
