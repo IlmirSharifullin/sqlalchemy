@@ -226,7 +226,7 @@ def edit_department(id):
                 [int(i) for i in mems.split(', ')]
             except Exception as e:
                 return render_template('add_department.html', message='Неправильно написаны ID сотрудников', form=form,
-                                   title='Изменение департамента')
+                                       title='Изменение департамента')
             dep.title = form.title.data
             dep.members = form.members.data
             dep.email = form.email.data

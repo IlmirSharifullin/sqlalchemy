@@ -27,6 +27,7 @@
         <th>Тим-лидер</th>
         <th>Продолжительность</th>
         <th>ID участников</th>
+        <th>Категория опасности</th>
         <th>Законченность</th>
     </tr>
     <tr>
@@ -34,6 +35,7 @@
         <td bgcolor="eeeefe">{{item.team_leader}}</td>
         <td bgcolor="eeeefe">{{item.work_size}} hours</td>
         <td bgcolor="eeeefe">{{item.collaborators}}</td>
+        <td bgcolor="eeeefe">{{item.hazard_type}}</td>
         {% if item.is_finished == 0 %}
         <td bgcolor="feeefe">Is not finished</td>
         {% else %}

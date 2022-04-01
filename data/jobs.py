@@ -9,7 +9,7 @@ class Jobs(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer,
                            primary_key=True, autoincrement=True)
-    team_leader = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey("users.id"))
+    team_leader = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     job = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     work_size = sqlalchemy.Column(sqlalchemy.Integer, nullable=True)
     collaborators = sqlalchemy.Column(sqlalchemy.String, nullable=True)
@@ -18,8 +18,10 @@ class Jobs(SqlAlchemyBase):
                                    default=datetime.datetime.now)
     end_date = sqlalchemy.Column(sqlalchemy.DateTime,
                                  default=datetime.datetime.now)
+    hazard_type = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("hazard_categories.id"))
 
     user = orm.relation('User')
+    hazard = orm.relation('HazardCategory')
 
     def __repr__(self):
         return f'<Job> {self.job}'
