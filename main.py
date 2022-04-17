@@ -2,7 +2,7 @@ from flask_restful import abort
 from sqlalchemy.sql.elements import or_
 from werkzeug.utils import redirect
 
-from data import db_session
+from data import db_session, jobs_api
 from flask import Flask, render_template, request, make_response
 
 from data.departments import Department
@@ -240,6 +240,7 @@ def edit_department(id):
 
 def main():
     db_session.global_init("db/mars_explorer.db")
+    app.register_blueprint(jobs_api.blueprint)
     app.run()
 
 
