@@ -2,6 +2,7 @@ import flask
 from flask import jsonify, request
 
 from data import db_session
+from data.hazard_categories import HazardCategory
 from data.jobs import Jobs
 
 blueprint = flask.Blueprint(
@@ -98,3 +99,58 @@ def delete_job(id):
     db_sess.delete(job)
     db_sess.commit()
     return jsonify({'success': 'OK'})
+
+
+@blueprint.route('/api/jobs/<id>', methods=['PUT'])
+def edit_job(id):
+    if not id.isdigit():
+        return jsonify({'error': 'Wrong type of id, expecting int type'})
+    elif not any(key in request.json for key in
+                 ['team_leader', 'job', 'work_size', 'collaborators', 'is_finished', 'hazard_type']):
+        return jsonify({'error': 'Bad request'})
+    db_sess = db_session.create_session()
+    job: Jobs = db_sess.query(Jobs).get(int(id))
+    if not job:
+        return jsonify({'error': 'NOT FOUND'})
+    data = request.json
+    errors = []
+    if 'job' in data:
+        job.job = data['job']
+    if 'work_size' in data:
+        if isinstance(data['work_size'], str) and data['work_size'].isdigit() or isinstance(data['work_size'], int):
+            job.work_size = data['work_size']
+        else:
+            errors.append({'work_size': 'Wrong type, expected int'})
+    if 'collaborators' in data:
+        try:
+            [int(i) for i in data['collaborators'].split(', ')]
+        except Exception:
+            errors.append({'collaborators': 'Expected ints splitted by ", "'})
+        else:
+            job.collaborators = data['collaborators']
+    if 'is_finished' in data:
+        is_fin = data['is_finished']
+        if isinstance(is_fin, str) and is_fin.isdigit() or isinstance(is_fin, int):
+            if int(data['is_finished']) not in [0, 1]:
+                errors.append({'is_finished': 'Expected 1 if True, else 0'})
+            else:
+                job.is_finished = data['is_finished']
+        else:
+            errors.append({'is_finished': 'Wrong type, expected int'})
+
+    if 'hazard_type' in data:
+        if data['hazard_type'].isdigit():
+
+            haz_typ = db_sess.query(HazardCategory).get(int(data['hazard_type']))
+            if not haz_typ:
+                errors.append({'hazard_type': 'Not found'})
+            else:
+                job.hazard_type = data['hazard_type']
+        else:
+            errors.append({'hazard_type': 'Wrong type, expected int'})
+        job.hazard_type = data['hazard_type']
+    db_sess.commit()
+    return jsonify({
+        'errors': errors if errors else 'no errors',
+        'response': 'OK'
+    })
