@@ -1,9 +1,13 @@
+import os.path
+import sys
+
+import requests
 from flask_restful import abort
 from sqlalchemy.sql.elements import or_
 from werkzeug.utils import redirect
 
 from data import db_session, jobs_api, users_api
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, url_for
 
 from data.departments import Department
 from data.users import User
@@ -238,8 +242,52 @@ def edit_department(id):
     return render_template('add_department.html', title='Изменение департамента', form=form)
 
 
+@app.route('/users_show/<int:id>')
+def users_show(id: int):
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(id)
+    if not user.city_from:
+        user.city_from = 'Moscow'
+
+    geocoder_request = f"http://geocode-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&geocode={user.city_from}&format=json"
+
+    response = requests.get(geocoder_request)
+    if response:
+        json_response = response.json()
+        toponym = json_response['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
+        full_address = toponym['metaDataProperty']['GeocoderMetaData']['Address']['formatted']
+        coords = toponym['Point']['pos']
+        print(full_address, '-', coords)
+    else:
+        print("Ошибка выполнения запроса:")
+        print(geocoder_request)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+    print(coords)
+
+    map_request = f"http://static-maps.yandex.ru/1.x/?apikey=40d1649f-0493-4b70-98ba-98533de7710b&ll={'%2C'.join(coords.split())}&z=11&l=sat"
+    response = requests.get(map_request)
+
+    if not response:
+        print("Ошибка выполнения запроса:")
+        print(map_request)
+        print("Http статус:", response.status_code, "(", response.reason, ")")
+        sys.exit(1)
+
+    map_file = os.path.join('static', 'img', 'map.png')
+    print(map_file)
+    with open(map_file, "wb") as file:
+        file.write(response.content)
+
+    return render_template('hometown.html', title=user.city_from, user=user, map_file=map_file)
+
+
 def main():
     db_session.global_init("db/mars_explorer.db")
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).get(4)
+    user.city_from = 'Джалиль'
+    db_sess.commit()
     app.register_blueprint(jobs_api.blueprint)
     app.register_blueprint(users_api.blueprint)
     app.run()
