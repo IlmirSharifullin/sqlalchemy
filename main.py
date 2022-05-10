@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import sys
 
@@ -274,7 +275,7 @@ def users_show(id: int):
         print("Http статус:", response.status_code, "(", response.reason, ")")
         sys.exit(1)
 
-    map_file = os.path.join('static', 'img', 'map.png')
+    map_file = os.path.join('static', 'img', f'{user.city_from} {str(datetime.datetime.now())}.png')
     print(map_file)
     with open(map_file, "wb") as file:
         file.write(response.content)
@@ -284,10 +285,6 @@ def users_show(id: int):
 
 def main():
     db_session.global_init("db/mars_explorer.db")
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).get(4)
-    user.city_from = 'Джалиль'
-    db_sess.commit()
     app.register_blueprint(jobs_api.blueprint)
     app.register_blueprint(users_api.blueprint)
     app.run()
